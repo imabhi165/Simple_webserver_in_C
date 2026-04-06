@@ -8,7 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # JOB 1: Build + MISRA Analysis
   misra-check:
     name: Build + MISRA Analysis
     runs-on: ubuntu-latest
@@ -44,7 +43,6 @@ jobs:
           path: reports/
           if-no-files-found: warn
 
-  # JOB 2: Send Email Notification (separate job)
   send-email:
     name: Send Email Notification
     runs-on: ubuntu-latest
@@ -73,39 +71,16 @@ jobs:
             VIOLATIONS="0"
           fi
           
-          # Set status based on violations
+          # Set status
           if [ "$VIOLATIONS" == "0" ]; then
-            STATUS="✅ PASS - No MISRA Violations"
-            STATUS_CLASS="status-pass"
+            STATUS="PASS - No MISRA Violations"
           else
-            STATUS="⚠️ FAIL - ${VIOLATIONS} Violations Found"
-            STATUS_CLASS="status-fail"
+            STATUS="FAIL - ${VIOLATIONS} Violations Found"
           fi
           
-          # Create violations table (top violations)
-          if [ "$VIOLATIONS" != "0" ]; then
-            VIOLATIONS_TABLE='<table style="width:100%; border-collapse:collapse; margin:15px 0;">'
-            VIOLATIONS_TABLE+='<thead><tr style="background:#667eea; color:white;">'
-            VIOLATIONS_TABLE+='<th style="padding:10px;">Rule</th>'
-            VIOLATIONS_TABLE+='<th style="padding:10px;">File</th>'
-            VIOLATIONS_TABLE+='<th style="padding:10px;">Line</th>'
-            VIOLATIONS_TABLE+='<th style="padding:10px;">Message</th>'
-            VIOLATIONS_TABLE+='</tr></thead><tbody>'
-            VIOLATIONS_TABLE+='<tr style="background:#fff3cd;"><td>21.5</td><td>main.c</td><td>15</td><td>Use of signal()</td></tr>'
-            VIOLATIONS_TABLE+='<tr style="background:#fff3cd;"><td>21.8</td><td>main.c</td><td>25</td><td>Use of exit()</td></tr>'
-            VIOLATIONS_TABLE+='<tr style="background:#fff3cd;"><td>21.6</td><td>http_server.c</td><td>45</td><td>Use of sprintf/printf</td></tr>'
-            VIOLATIONS_TABLE+='<tr style="background:#fff3cd;"><td>15.5</td><td>http_parser.c</td><td>67</td><td>Multiple return points</td></tr>'
-            VIOLATIONS_TABLE+='<tr style="background:#fff3cd;"><td>16.4</td><td>http_parser.c</td><td>89</td><td>Missing default case</td></tr>'
-            VIOLATIONS_TABLE+='<tr style="background:#fff3cd;"><td>18.4</td><td>http_parser.c</td><td>112</td><td>Pointer arithmetic</td></tr>'
-            VIOLATIONS_TABLE+='</tbody></table><p><small>Full details in attached report</small></p>'
-          else
-            VIOLATIONS_TABLE='<p style="color:green;">✅ No violations detected!</p>'
-          fi
-          
-          # Get workflow URL
           WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           
-          # Send email via EmailJS
+          # Simple JSON without complex HTML
           curl -X POST https://api.emailjs.com/api/v1.0/email/send \
             -H 'Content-Type: application/json' \
             -d "{
@@ -116,7 +91,6 @@ jobs:
               \"template_params\": {
                 \"to_email\": \"${TO_EMAIL}\",
                 \"project_name\": \"Simple Webserver\",
-                \"status_class\": \"${STATUS_CLASS}\",
                 \"status\": \"${STATUS}\",
                 \"repo\": \"${{ github.repository }}\",
                 \"commit\": \"${{ github.sha }}\",
@@ -125,7 +99,6 @@ jobs:
                 \"actor\": \"${{ github.actor }}\",
                 \"time\": \"$(date '+%Y-%m-%d %H:%M:%S UTC')\",
                 \"violations\": \"${VIOLATIONS}\",
-                \"violations_table\": \"${VIOLATIONS_TABLE}\",
                 \"artifact_link\": \"${WORKFLOW_URL}\",
                 \"workflow_link\": \"${WORKFLOW_URL}\"
               }
