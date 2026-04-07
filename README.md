@@ -1,4 +1,3 @@
-Here's your **cppcheck-oriented README** focused on static analysis for embedded industry:
 
 ---
 
