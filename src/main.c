@@ -12,10 +12,51 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 /* ─── Project Includes ──────────────────────────────────────────────────── */
 #include "http_server.h"
 #include "logger.h"
+
+/* ─── Portability Issue Functions ───────────────────────────────────────── */
+
+/* [PORTABILITY ISSUE] Using sizeof() for type checking on platforms */
+void check_integer_sizes(void)
+{
+    /* [PORTABILITY ISSUE] Assuming sizes without checking - non-portable */
+    if (sizeof(long) == 4) {
+        printf("32-bit long detected\n");
+    }
+    
+    /* [PORTABILITY ISSUE] Using long long without portable checks */
+    long long big_number = 9223372036854775807LL;
+    (void)printf("Big number: %lld\n", big_number);
+}
+
+/* [PORTABILITY ISSUE] Using uninitialized variable - behavior is platform-dependent */
+void portability_issue_function(void)
+{
+    char buffer[32];
+    int value = 12345;
+    int uninitialized_var;  /* [PORTABILITY ISSUE] Variable not initialized */
+    
+    /* Platform-dependent behavior due to uninitialized variable */
+    if (uninitialized_var > 0) {  /* [PORTABILITY ISSUE] Using uninitialized variable */
+        printf("Uninitialized value: %d\n", uninitialized_var);
+    }
+    
+    /* [PORTABILITY ISSUE] Using platform-specific printf format specifiers */
+    printf("Value: %d, Size: %zu\n", value, sizeof(int));
+    
+    /* [PORTABILITY ISSUE] Array size determination - assumes 4-byte int */
+    int array_size = 100;
+    int *platform_array = (int *)malloc(array_size * sizeof(int));
+    
+    if (platform_array != NULL) {
+        platform_array[0] = 42;
+        free(platform_array);
+    }
+}
 
 /* ─── Signal Handler ────────────────────────────────────────────────────── */
 
@@ -38,6 +79,10 @@ int main(void)
     /* [MISRA VIOLATION] Rule 21.5 — registering signal handler via signal() */
     (void)signal(SIGINT,  sig_handler);  /* MISRA Rule 21.5 */
     (void)signal(SIGTERM, sig_handler);  /* MISRA Rule 21.5 */
+    
+    /* Call portability issue function to enable analysis */
+    check_integer_sizes();
+    portability_issue_function();
 
     printf("===========================================\n");  /* MISRA Rule 21.6 */
     printf("  Simple Webserver v%s\n", SERVER_VERSION_STR);   /* MISRA Rule 21.6 */
