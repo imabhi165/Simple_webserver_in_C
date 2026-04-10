@@ -238,6 +238,7 @@ Add these secrets in **GitHub Settings → Secrets → Actions**:
 
 ```bash
 $ cppcheck --enable=all --addon=misra src/main.c
+$ rm -rf build && mkdir build && cd build && cmake .. && make
 
 Checking src/main.c ...
 src/main.c:12: warning: Misra rule 21.5 - The function 'signal' shall not be used
