@@ -265,7 +265,7 @@ Create `misra_addon.json`:
   "script": "misra.py",
   "args": [
     "--rule-texts=misra_rules.txt",
-    "--rule-file=m自家的",
+    "--rule-file=",
     "--certainty=1,2,3"
   ]
 }
@@ -401,7 +401,7 @@ This project is for **educational purposes** - demonstrating static analysis tec
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Found a new MISRA violation? Want to add more static analysis checks? Feel free to:
 
