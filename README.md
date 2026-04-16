@@ -395,7 +395,7 @@ cppcheck --platform=arm32-wince src/
 
 ---
 
-## 📄 License
+## License
 
 This project is for **educational purposes** - demonstrating static analysis techniques for embedded safety-critical software development.
 
